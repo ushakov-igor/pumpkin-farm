@@ -1,7 +1,6 @@
 import Phaser from "https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.esm.js";
 import { TASK_DEFINITIONS } from "./data/tasks.js";
-import { PresenceApiService } from "./services/presenceApi.js";
-import { ChatApiService } from "./services/chatApi.js";
+import { saveState, loadState } from "./services/storage.js";
 
 const GRID_COLS = 8;
 const GRID_ROWS = 5;
@@ -16,17 +15,18 @@ class FarmScene extends Phaser.Scene {
     this.activeTask = null;
     this.taskProgress = 0;
     this.otherPlayers = new Map();
+    this.autoSaveTimer = null;
   }
 
-  create() {
+  async create() {
     this.createTextures();
     this.createField();
     this.createPresenceLayer();
     this.bindInput();
+    await this.restoreState();
     this.updateHud();
-
-    this.startPresence();
-    this.startChat();
+    this.startLocalPresence();
+    this.startAutoSave();
   }
 
   createTextures() {
@@ -119,6 +119,10 @@ class FarmScene extends Phaser.Scene {
 
     const taskBtn = document.getElementById("task-btn");
     taskBtn.addEventListener("click", () => this.assignTask());
+
+    document.getElementById("save-btn").addEventListener("click", () => this.persistState());
+    document.getElementById("load-btn").addEventListener("click", () => this.restoreState(true));
+    document.getElementById("reset-btn").addEventListener("click", () => this.resetState());
   }
 
   findTileAt(x, y) {
@@ -136,12 +140,14 @@ class FarmScene extends Phaser.Scene {
   plantSeed(tile) {
     tile.state = "growing";
     tile.plant.setTexture("sprout").setAlpha(1);
+    tile.plantedAt = Date.now();
 
     tile.timer = this.time.addEvent({
       delay: GROW_TIME,
       callback: () => {
         tile.state = "ready";
         tile.plant.setTexture("pumpkin");
+        tile.plantedAt = tile.plantedAt || Date.now();
       },
     });
 
@@ -150,6 +156,8 @@ class FarmScene extends Phaser.Scene {
         tile.plant.setTexture("plant");
       }
     });
+
+    this.persistState();
   }
 
   harvest(tile) {
@@ -161,6 +169,7 @@ class FarmScene extends Phaser.Scene {
     }
     this.coins += 1;
     this.updateHud();
+    this.persistState();
   }
 
   assignTask() {
@@ -168,6 +177,7 @@ class FarmScene extends Phaser.Scene {
     this.activeTask = task;
     this.taskProgress = 0;
     this.updateHud();
+    this.persistState();
   }
 
   onTaskProgress(type) {
@@ -179,8 +189,10 @@ class FarmScene extends Phaser.Scene {
       this.coins += this.activeTask.reward;
       this.setStatus(`Задание выполнено: +${this.activeTask.reward}`);
       this.activeTask = null;
+      this.taskProgress = 0;
     }
     this.updateHud();
+    this.persistState();
   }
 
   updateHud() {
@@ -238,60 +250,81 @@ class FarmScene extends Phaser.Scene {
     status.textContent = text;
   }
 
-  async startPresence() {
-    this.setStatus("Мир ищет соседей");
-    this.presence = new PresenceApiService(
-      (players) => this.updatePresence(players),
-      (text) => this.setStatus(text)
-    );
-
-    try {
-      await this.presence.start();
-    } catch (err) {
-      this.setStatus("Оффлайн мир");
-    }
-
-    window.addEventListener("beforeunload", () => {
-      this.presence?.stop?.();
-    });
+  startLocalPresence() {
+    this.setStatus("Оффлайн мир");
+    this.presence = new PresenceService((players) => this.updatePresence(players));
+    this.presence.start();
   }
 
-  startChat() {
-    const messagesEl = document.getElementById("chat-messages");
-    const formEl = document.getElementById("chat-form");
-    const inputEl = document.getElementById("chat-text");
+  startAutoSave() {
+    this.autoSaveTimer = setInterval(() => this.persistState(), 10000);
+  }
 
-    this.chat = new ChatApiService((messages) => {
-      messagesEl.innerHTML = "";
-      messages.forEach((msg) => {
-        const row = document.createElement("div");
-        row.className = "chat-message";
-        const name = document.createElement("span");
-        name.className = "chat-name";
-        name.textContent = msg.display_name + ":";
-        const body = document.createElement("span");
-        body.textContent = msg.body;
-        row.appendChild(name);
-        row.appendChild(body);
-        messagesEl.appendChild(row);
-      });
-      messagesEl.scrollTop = messagesEl.scrollHeight;
+  async persistState() {
+    const state = {
+      coins: this.coins,
+      activeTask: this.activeTask,
+      taskProgress: this.taskProgress,
+      tiles: this.tiles.map((tile) => ({
+        state: tile.state,
+        plantedAt: tile.plantedAt || null,
+      })),
+      savedAt: Date.now(),
+    };
+    await saveState(state);
+  }
+
+  async restoreState(manual = false) {
+    const state = await loadState();
+    if (!state) {
+      if (manual) this.setStatus("Нет сохранения");
+      return;
+    }
+
+    this.coins = state.coins || 0;
+    this.activeTask = state.activeTask || null;
+    this.taskProgress = state.taskProgress || 0;
+
+    const now = Date.now();
+    this.tiles.forEach((tile, index) => {
+      const saved = state.tiles?.[index];
+      if (!saved || saved.state === "empty") {
+        tile.state = "empty";
+        tile.plant.setAlpha(0);
+        tile.plantedAt = null;
+        return;
+      }
+
+      tile.plantedAt = saved.plantedAt || now;
+      const elapsed = now - tile.plantedAt;
+
+      if (elapsed >= GROW_TIME) {
+        tile.state = "ready";
+        tile.plant.setTexture("pumpkin").setAlpha(1);
+      } else if (elapsed >= GROW_TIME * 0.5) {
+        tile.state = "growing";
+        tile.plant.setTexture("plant").setAlpha(1);
+      } else {
+        tile.state = "growing";
+        tile.plant.setTexture("sprout").setAlpha(1);
+      }
     });
 
-    this.chat.start();
+    this.setStatus("Сохранение загружено");
+  }
 
-    formEl.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const player = window.__PUMPKIN_PLAYER__;
-      if (!player) return;
-      await this.chat.sendMessage({
-        playerId: player.id,
-        displayName: player.display_name,
-        body: inputEl.value,
-      });
-      inputEl.value = "";
-      await this.chat.fetchMessages();
+  async resetState() {
+    this.coins = 0;
+    this.activeTask = null;
+    this.taskProgress = 0;
+    this.tiles.forEach((tile) => {
+      tile.state = "empty";
+      tile.plant.setAlpha(0);
+      tile.plantedAt = null;
     });
+    await this.persistState();
+    this.updateHud();
+    this.setStatus("Ферма сброшена");
   }
 }
 

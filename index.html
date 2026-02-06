@@ -21,13 +21,14 @@
           <div class="stat" id="tasks">Заданий: 0</div>
           <button id="task-btn">Получить задание</button>
         </div>
-        <section class="chat-panel">
-          <div class="chat-header">Фермерский чат</div>
-          <div class="chat-messages" id="chat-messages"></div>
-          <form class="chat-input" id="chat-form">
-            <input id="chat-text" type="text" maxlength="200" placeholder="Сказать соседям..." />
-            <button type="submit">Отправить</button>
-          </form>
+        <section class="save-panel">
+          <div class="save-header">Сохранение</div>
+          <div class="save-row">
+            <button id="save-btn">Сохранить</button>
+            <button id="load-btn">Загрузить</button>
+            <button id="reset-btn">Сброс</button>
+          </div>
+          <div class="save-hint">Автосейв каждые 10 секунд.</div>
         </section>
       </main>
       <footer class="hint">

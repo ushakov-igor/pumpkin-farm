@@ -1,36 +1,19 @@
 # Pumpkin Farm
 
-Browser-based pixel-art farm simulator prototype with pumpkins, tasks, and a "living world" feel via real player presence.
+Browser-based pixel-art farm simulator prototype with pumpkins, tasks, and local persistence.
 
-## Stack (Docker, one command)
+## Stack
 - Frontend: Phaser 3 (ESM via CDN), vanilla JS
-- Backend: Postgres + PostgREST
-- Hosting: Docker Compose (single command)
+- Storage: IndexedDB (local)
 
 ## Run (one command)
 ```bash
-docker compose up --build
+python3 -m http.server 5173
 ```
 
-Open:
-- App: `http://localhost:8080`
-- API (PostgREST): `http://localhost:3000`
+Open `http://localhost:5173`.
 
-## Backend Notes
-- DB schema + seed live in `db/init/`
-- Registration is always on: a player is created on first load
-- Presence is real: only live players that update their presence show up
-- Presence cleanup runs in `janitor` service every 60 seconds
-- Global chat uses `messages` table and polls every ~2.5 seconds
-
-## Config
-- App uses `/api` which is proxied to PostgREST by Nginx (`nginx/default.conf`).
-- API base is injected via `API_BASE` env var at container start (see `docker-entrypoint.sh`).
-
-If you run without Docker, create `config.js` from template:
-```bash
-cp config.template.js config.js
-```
-
-## Render (Blueprint)
-`render.yaml` is included for a Render Blueprint deployment (free tier).\n\nManual steps after import:\n- Set `PGRST_DB_URI` to the Render Postgres connection string (format: `postgres://authenticator:postgres@HOST:5432/pumpkin`).\n- Ensure Postgres has init scripts applied (use `db/init/*.sql` on first run in your DB).\n\nNote: free services sleep when idle.
+## Notes
+- All progress is stored locally in the browser (IndexedDB).
+- Use the Save panel to manually save/load/reset.
+- Aut-save runs every 10 seconds.
