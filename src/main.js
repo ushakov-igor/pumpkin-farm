@@ -32,6 +32,7 @@ class FarmScene extends Phaser.Scene {
     this.createPresenceLayer();
     this.bindInput();
     await this.restoreState();
+    this.ensureStarterSeeds();
     this.updateHud();
     this.startLocalPresence();
     this.startAutoSave();
@@ -125,28 +126,34 @@ class FarmScene extends Phaser.Scene {
       }
     });
 
-    const taskBtn = document.getElementById("task-btn");
-    taskBtn.addEventListener("click", () => this.assignTask());
+    const bind = (id, handler) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("click", handler);
+    };
 
-    document.getElementById("save-btn").addEventListener("click", () => this.persistState());
-    document.getElementById("load-btn").addEventListener("click", () => this.restoreState(true));
-    document.getElementById("reset-btn").addEventListener("click", () => this.resetState());
-    document.getElementById("sell-one-btn").addEventListener("click", () => this.sellPumpkins(1));
-    document.getElementById("sell-all-btn").addEventListener("click", () => this.sellPumpkins(this.pumpkins));
-    document.getElementById("export-btn").addEventListener("click", () => this.exportSave());
-    document.getElementById("import-btn").addEventListener("click", () => this.importSave());
-    document.getElementById("buy-seed-btn").addEventListener("click", () => this.buySeeds());
+    bind("task-btn", () => this.assignTask());
+    bind("save-btn", () => this.persistState());
+    bind("load-btn", () => this.restoreState(true));
+    bind("reset-btn", () => this.resetState());
+    bind("sell-one-btn", () => this.sellPumpkins(1));
+    bind("sell-all-btn", () => this.sellPumpkins(this.pumpkins));
+    bind("export-btn", () => this.exportSave());
+    bind("import-btn", () => this.importSave());
+    bind("buy-seed-btn", () => this.buySeeds());
 
     const menuBtn = document.getElementById("menu-btn");
     const menuClose = document.getElementById("menu-close");
     const overlay = document.getElementById("menu-overlay");
-    menuBtn.addEventListener("click", () => this.toggleMenu(true));
-    menuClose.addEventListener("click", () => this.toggleMenu(false));
-    overlay.addEventListener("click", (event) => {
-      if (event.target === overlay) this.toggleMenu(false);
-    });
+    if (menuBtn) menuBtn.addEventListener("click", () => this.toggleMenu(true));
+    if (menuClose) menuClose.addEventListener("click", () => this.toggleMenu(false));
+    if (overlay) {
+      overlay.addEventListener("click", (event) => {
+        if (event.target === overlay) this.toggleMenu(false);
+      });
+    }
     window.addEventListener("keydown", (event) => {
       if (event.key === "Escape") this.toggleMenu(false);
+      if (event.key.toLowerCase() === "m") this.toggleMenu(true);
     });
   }
 
@@ -380,6 +387,14 @@ class FarmScene extends Phaser.Scene {
     this.setStatus("Ферма сброшена");
   }
 
+  ensureStarterSeeds() {
+    const allEmpty = this.tiles.every((tile) => tile.state === "empty");
+    if (this.seeds <= 0 && this.coins === 0 && this.pumpkins === 0 && allEmpty) {
+      this.seeds = 5;
+      this.setStatus("Выданы стартовые семена");
+    }
+  }
+
   scheduleGrowth(tile, elapsed) {
     if (tile.timer) {
       tile.timer.remove(false);
@@ -473,12 +488,16 @@ class FarmScene extends Phaser.Scene {
   }
 
   toggleMenu(open) {
+    const overlay = document.getElementById("menu-overlay");
+    if (!overlay) return;
     if (open) {
       document.body.classList.add("menu-open");
-      document.getElementById("menu-overlay").setAttribute("aria-hidden", "false");
+      overlay.classList.add("is-open");
+      overlay.setAttribute("aria-hidden", "false");
     } else {
       document.body.classList.remove("menu-open");
-      document.getElementById("menu-overlay").setAttribute("aria-hidden", "true");
+      overlay.classList.remove("is-open");
+      overlay.setAttribute("aria-hidden", "true");
     }
   }
 }
