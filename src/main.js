@@ -1,17 +1,22 @@
 import Phaser from "https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.esm.js";
 import { TASK_DEFINITIONS } from "./data/tasks.js";
 import { saveState, loadState } from "./services/storage.js";
+import { PresenceService } from "./services/presence.js";
 
 const GRID_COLS = 8;
 const GRID_ROWS = 5;
 const TILE_SIZE = 96;
 const GROW_TIME = 10000;
+const SELL_PRICE = 2;
 
 class FarmScene extends Phaser.Scene {
   constructor() {
     super("FarmScene");
     this.tiles = [];
     this.coins = 0;
+    this.pumpkins = 0;
+    this.level = 1;
+    this.xp = 0;
     this.activeTask = null;
     this.taskProgress = 0;
     this.otherPlayers = new Map();
@@ -123,6 +128,10 @@ class FarmScene extends Phaser.Scene {
     document.getElementById("save-btn").addEventListener("click", () => this.persistState());
     document.getElementById("load-btn").addEventListener("click", () => this.restoreState(true));
     document.getElementById("reset-btn").addEventListener("click", () => this.resetState());
+    document.getElementById("sell-one-btn").addEventListener("click", () => this.sellPumpkins(1));
+    document.getElementById("sell-all-btn").addEventListener("click", () => this.sellPumpkins(this.pumpkins));
+    document.getElementById("export-btn").addEventListener("click", () => this.exportSave());
+    document.getElementById("import-btn").addEventListener("click", () => this.importSave());
   }
 
   findTileAt(x, y) {
@@ -167,7 +176,8 @@ class FarmScene extends Phaser.Scene {
       tile.timer.remove(false);
       tile.timer = null;
     }
-    this.coins += 1;
+    this.pumpkins += 1;
+    this.addXp(2);
     this.updateHud();
     this.persistState();
   }
@@ -187,6 +197,7 @@ class FarmScene extends Phaser.Scene {
     this.taskProgress += 1;
     if (this.taskProgress >= this.activeTask.goal) {
       this.coins += this.activeTask.reward;
+      this.addXp(this.activeTask.reward);
       this.setStatus(`Задание выполнено: +${this.activeTask.reward}`);
       this.activeTask = null;
       this.taskProgress = 0;
@@ -197,9 +208,13 @@ class FarmScene extends Phaser.Scene {
 
   updateHud() {
     const coinEl = document.getElementById("coins");
+    const pumpkinEl = document.getElementById("pumpkins");
+    const levelEl = document.getElementById("level");
     const taskEl = document.getElementById("tasks");
 
     coinEl.textContent = `Монеты: ${this.coins}`;
+    pumpkinEl.textContent = `Тыквы: ${this.pumpkins}`;
+    levelEl.textContent = `Уровень: ${this.level} (${this.xp}/${this.nextLevelXp()})`;
     if (!this.activeTask) {
       taskEl.textContent = "Заданий: 0";
       return;
@@ -263,6 +278,9 @@ class FarmScene extends Phaser.Scene {
   async persistState() {
     const state = {
       coins: this.coins,
+      pumpkins: this.pumpkins,
+      level: this.level,
+      xp: this.xp,
       activeTask: this.activeTask,
       taskProgress: this.taskProgress,
       tiles: this.tiles.map((tile) => ({
@@ -282,6 +300,9 @@ class FarmScene extends Phaser.Scene {
     }
 
     this.coins = state.coins || 0;
+    this.pumpkins = state.pumpkins || 0;
+    this.level = state.level || 1;
+    this.xp = state.xp || 0;
     this.activeTask = state.activeTask || null;
     this.taskProgress = state.taskProgress || 0;
 
@@ -304,9 +325,11 @@ class FarmScene extends Phaser.Scene {
       } else if (elapsed >= GROW_TIME * 0.5) {
         tile.state = "growing";
         tile.plant.setTexture("plant").setAlpha(1);
+        this.scheduleGrowth(tile, elapsed);
       } else {
         tile.state = "growing";
         tile.plant.setTexture("sprout").setAlpha(1);
+        this.scheduleGrowth(tile, elapsed);
       }
     });
 
@@ -315,6 +338,9 @@ class FarmScene extends Phaser.Scene {
 
   async resetState() {
     this.coins = 0;
+    this.pumpkins = 0;
+    this.level = 1;
+    this.xp = 0;
     this.activeTask = null;
     this.taskProgress = 0;
     this.tiles.forEach((tile) => {
@@ -325,6 +351,86 @@ class FarmScene extends Phaser.Scene {
     await this.persistState();
     this.updateHud();
     this.setStatus("Ферма сброшена");
+  }
+
+  scheduleGrowth(tile, elapsed) {
+    if (tile.timer) {
+      tile.timer.remove(false);
+      tile.timer = null;
+    }
+
+    const remaining = Math.max(0, GROW_TIME - elapsed);
+    tile.timer = this.time.addEvent({
+      delay: remaining,
+      callback: () => {
+        tile.state = "ready";
+        tile.plant.setTexture("pumpkin");
+      },
+    });
+
+    const half = GROW_TIME * 0.5;
+    if (elapsed < half) {
+      this.time.delayedCall(half - elapsed, () => {
+        if (tile.state === "growing") {
+          tile.plant.setTexture("plant");
+        }
+      });
+    }
+  }
+
+  sellPumpkins(count) {
+    if (count <= 0) return;
+    const sellCount = Math.min(this.pumpkins, count);
+    if (sellCount === 0) return;
+    this.pumpkins -= sellCount;
+    const earned = sellCount * SELL_PRICE;
+    this.coins += earned;
+    this.addXp(sellCount);
+    this.updateHud();
+    this.setStatus(`Продано: ${sellCount} (+${earned})`);
+    this.persistState();
+  }
+
+  nextLevelXp() {
+    return 20 + (this.level - 1) * 10;
+  }
+
+  addXp(amount) {
+    this.xp += amount;
+    while (this.xp >= this.nextLevelXp()) {
+      this.xp -= this.nextLevelXp();
+      this.level += 1;
+      this.setStatus(`Новый уровень: ${this.level}`);
+    }
+  }
+
+  async exportSave() {
+    const state = await loadState();
+    const output = document.getElementById("save-json");
+    const data = state ? JSON.stringify(state) : "";
+    output.value = data;
+    output.focus();
+    output.select();
+    try {
+      await navigator.clipboard.writeText(data);
+      this.setStatus("Сохранение скопировано");
+    } catch (err) {
+      this.setStatus("Сохранение готово");
+    }
+  }
+
+  async importSave() {
+    const input = document.getElementById("save-json");
+    if (!input.value) return;
+    try {
+      const data = JSON.parse(input.value);
+      await saveState(data);
+      await this.restoreState(true);
+      this.updateHud();
+      this.setStatus("Сохранение импортировано");
+    } catch (err) {
+      this.setStatus("Ошибка JSON");
+    }
   }
 }
 

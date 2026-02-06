@@ -1,7 +1,8 @@
 # Project Notes
 
 ## 2026-02-06
-- Switched to frontend-only architecture with IndexedDB local persistence.
-- Added manual save/load/reset controls and autosave (10s).
-- Removed backend/Docker/Render/Supabase artifacts.
-- Added GitHub Pages deploy workflow on push to main (.github/workflows/pages.yml).
+- Frontend-only architecture with IndexedDB local persistence.
+- Added JSON export/import, manual save/load/reset, autosave.
+- Added selling, pumpkins inventory, and leveling (XP).
+- Ensured offline growth continues via planted timestamps and rescheduled timers.
+- Tuned pixel UI and kept layout within one screen.

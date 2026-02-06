@@ -13,7 +13,11 @@ python3 -m http.server 5173
 
 Open `http://localhost:5173`.
 
+## Features
+- Plant, grow, harvest, and sell pumpkins
+- Tasks and leveling
+- Autosave + JSON export/import
+- Offline growth continues while the tab is closed
+
 ## Notes
-- All progress is stored locally in the browser (IndexedDB).
-- Use the Save panel to manually save/load/reset.
-- Aut-save runs every 10 seconds.
+All progress is stored locally in the browser (IndexedDB).

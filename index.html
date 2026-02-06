@@ -18,21 +18,33 @@
         <div id="game"></div>
         <div class="hud">
           <div class="stat" id="coins">Монеты: 0</div>
+          <div class="stat" id="pumpkins">Тыквы: 0</div>
+          <div class="stat" id="level">Уровень: 1</div>
           <div class="stat" id="tasks">Заданий: 0</div>
           <button id="task-btn">Получить задание</button>
         </div>
         <section class="save-panel">
-          <div class="save-header">Сохранение</div>
+          <div class="save-header">Ферма</div>
+          <div class="save-row">
+            <button id="sell-one-btn">Продать 1</button>
+            <button id="sell-all-btn">Продать все</button>
+            <div class="stat" id="price">Цена: 2</div>
+          </div>
           <div class="save-row">
             <button id="save-btn">Сохранить</button>
             <button id="load-btn">Загрузить</button>
             <button id="reset-btn">Сброс</button>
           </div>
-          <div class="save-hint">Автосейв каждые 10 секунд.</div>
+          <div class="save-row">
+            <button id="export-btn">Экспорт</button>
+            <button id="import-btn">Импорт</button>
+          </div>
+          <textarea id="save-json" rows="2" placeholder="JSON сохранения..."></textarea>
+          <div class="save-hint">Автосейв каждые 10 секунд. Экспорт = копия в буфер.</div>
         </section>
       </main>
       <footer class="hint">
-        Тап/клик по грядке — посадить. Тыква растет ~10 сек.
+        Тап/клик по грядке — посадить. Тыква растет ~10 сек, потом продается.
       </footer>
     </div>
     <script src="./config.js"></script>
