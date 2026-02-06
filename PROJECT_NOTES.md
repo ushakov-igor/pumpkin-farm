@@ -6,3 +6,6 @@
 - Added selling, pumpkins inventory, and leveling (XP).
 - Ensured offline growth continues via planted timestamps and rescheduled timers.
 - Tuned pixel UI and kept layout within one screen.
+- Fixed Phaser import (`import * as Phaser`) to resolve module runtime crash.
+- Added visible farm cell grid and adjusted UI to light retro Diablo-like inventory slots.
+- Kept menu as overlay and removed persistent offline status text from layout.

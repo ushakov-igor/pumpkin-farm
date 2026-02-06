@@ -1,13 +1,12 @@
 :root {
-  --bg-1: #f0e2c4;
-  --bg-2: #d8c3a3;
-  --panel: #f6edd9;
-  --panel-2: #e4d2b4;
-  --accent: #a86a2a;
+  --bg-1: #f6ecd8;
+  --bg-2: #dcc6a3;
+  --panel: #fff7e7;
+  --panel-2: #eed9b9;
   --gold: #8d5c24;
-  --ink: #3b2a1a;
-  --shadow: rgba(50, 33, 20, 0.25);
-  --frame: #6a4a2b;
+  --ink: #332517;
+  --shadow: rgba(50, 33, 20, 0.16);
+  --frame: #6c4a2b;
 }
 
 * {
@@ -22,7 +21,10 @@ body {
 }
 
 body {
-  background: radial-gradient(circle at top, var(--bg-1), var(--bg-2));
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.4), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(255, 245, 214, 0.55), transparent 40%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2));
   overflow: hidden;
 }
 
@@ -44,7 +46,7 @@ body {
 .top-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 6px 12px;
   border: 2px solid var(--frame);
   box-shadow: 0 8px 24px var(--shadow);
@@ -59,6 +61,7 @@ body {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .top-info .nes-text {
@@ -84,7 +87,7 @@ body {
   overflow: hidden;
   background: #5f9b4d;
   border: 3px solid var(--frame);
-  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.18);
   border-radius: 12px;
 }
 
@@ -100,6 +103,7 @@ body {
   padding: 10px;
   overflow: hidden;
   border: 2px solid var(--frame);
+  box-shadow: 0 6px 18px var(--shadow);
 }
 
 .inventory-header {
@@ -116,7 +120,7 @@ body {
 .inv-slot {
   height: 72px;
   border: 2px solid var(--frame);
-  background: linear-gradient(180deg, #f7e7c8, #e1cba7);
+  background: linear-gradient(180deg, #fff4da, #ecd4ac);
   position: relative;
   display: flex;
   align-items: center;
@@ -147,7 +151,7 @@ body {
 .menu-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(35, 22, 12, 0.55);
+  background: rgba(35, 22, 12, 0.42);
   display: none;
   align-items: center;
   justify-content: center;
@@ -169,6 +173,7 @@ body.menu-open .menu-overlay,
   gap: 12px;
   padding: 12px;
   border: 2px solid var(--frame);
+  box-shadow: 0 10px 28px var(--shadow);
 }
 
 .menu-header {
@@ -188,7 +193,7 @@ body.menu-open .menu-overlay,
   flex-direction: column;
   gap: 8px;
   border: 2px solid var(--frame);
-  background: #f3e4c7;
+  background: #f9ecd2;
 }
 
 .menu-row {

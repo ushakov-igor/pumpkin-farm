@@ -1,4 +1,4 @@
-import Phaser from "https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.esm.js";
+import * as Phaser from "https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.esm.js";
 import { TASK_DEFINITIONS } from "./data/tasks.js";
 import { saveState, loadState } from "./services/storage.js";
 import { PresenceService } from "./services/presence.js";
@@ -93,6 +93,7 @@ class FarmScene extends Phaser.Scene {
 
         this.add.image(x, y, "grass").setScale(1.5);
         const soil = this.add.image(x, y, "soil").setScale(1.4);
+        this.add.rectangle(x, y, TILE_SIZE - 4, TILE_SIZE - 4).setStrokeStyle(2, 0x4a2c1a, 0.5);
 
         const plant = this.add.image(x, y, "sprout").setAlpha(0);
 
