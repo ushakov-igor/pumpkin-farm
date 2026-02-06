@@ -392,6 +392,7 @@ class FarmScene extends Phaser.Scene {
     if (this.seeds <= 0 && this.coins === 0 && this.pumpkins === 0 && allEmpty) {
       this.seeds = 5;
       this.setStatus("Выданы стартовые семена");
+      this.persistState();
     }
   }
 
