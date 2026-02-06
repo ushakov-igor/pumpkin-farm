@@ -4,77 +4,82 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>Тыквенная ферма</title>
+    <link rel="stylesheet" href="https://unpkg.com/nes.css@2.3.0/css/nes.min.css" />
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
     <div id="app">
-      <header class="top-bar">
-        <div class="title">
-          <span>Тыквенная ферма</span>
-        </div>
+      <header class="top-bar nes-container is-rounded">
+        <div class="title">Тыквенная ферма</div>
         <div class="top-info">
-          <div class="stat" id="level">Уровень: 1</div>
-          <div class="stat" id="coins">Монеты: 0</div>
-          <button id="menu-btn" class="menu-btn">Меню</button>
+          <span class="nes-text" id="level">Уровень: 1</span>
+          <span class="nes-text" id="coins">Монеты: 0</span>
+          <button id="menu-btn" class="nes-btn is-primary">Меню</button>
         </div>
       </header>
       <main class="game-wrap">
-        <div id="game"></div>
-        <aside class="inventory-panel">
+        <div id="game" class="nes-container is-rounded"></div>
+        <aside class="inventory-panel nes-container is-rounded">
           <div class="inventory-header">Инвентарь</div>
           <div class="inventory-list">
-            <div class="inventory-item">
-              <span>Тыквы</span>
-              <span id="pumpkins">0</span>
+            <div class="inventory-item nes-container is-rounded">
+              <div class="item-icon">🎃</div>
+              <div class="item-info">
+                <div class="item-name">Тыквы</div>
+                <div class="item-qty" id="pumpkins">0</div>
+              </div>
             </div>
-            <div class="inventory-item">
-              <span>Семена</span>
-              <span id="seeds">0</span>
+            <div class="inventory-item nes-container is-rounded">
+              <div class="item-icon">🌱</div>
+              <div class="item-info">
+                <div class="item-name">Семена</div>
+                <div class="item-qty" id="seeds">0</div>
+              </div>
             </div>
           </div>
-          <div class="inventory-hint">Собирай урожай и продавай через меню.</div>
+          <div class="inventory-hint nes-text">Продажа и покупки — в меню.</div>
         </aside>
       </main>
-      <div class="status-bar" id="status">Оффлайн мир</div>
+      <div class="status-pill nes-container is-rounded" id="status">Оффлайн мир</div>
       <div class="menu-overlay" id="menu-overlay" aria-hidden="true">
-        <div class="menu-panel">
+        <div class="menu-panel nes-container is-rounded">
           <div class="menu-header">
-            <div>Меню</div>
-            <button id="menu-close" class="menu-btn">Закрыть</button>
+            <div class="menu-title">Меню</div>
+            <button id="menu-close" class="nes-btn">Закрыть</button>
           </div>
-          <div class="menu-section">
+          <div class="menu-section nes-container is-rounded">
             <div class="menu-title">Задания</div>
-            <div id="tasks">Заданий: 0</div>
-            <button id="task-btn">Получить задание</button>
+            <div id="tasks" class="nes-text">Заданий: 0</div>
+            <button id="task-btn" class="nes-btn is-success">Получить задание</button>
           </div>
-          <div class="menu-section">
+          <div class="menu-section nes-container is-rounded">
             <div class="menu-title">Магазин</div>
             <div class="menu-row">
-              <button id="buy-seed-btn">Купить семена (5)</button>
-              <div class="stat">Цена: 1</div>
+              <button id="buy-seed-btn" class="nes-btn">Купить семена (5)</button>
+              <div class="nes-text">Цена: 1</div>
             </div>
           </div>
-          <div class="menu-section">
+          <div class="menu-section nes-container is-rounded">
             <div class="menu-title">Продажа</div>
             <div class="menu-row">
-              <button id="sell-one-btn">Продать 1</button>
-              <button id="sell-all-btn">Продать все</button>
-              <div class="stat" id="price">Цена: 2</div>
+              <button id="sell-one-btn" class="nes-btn">Продать 1</button>
+              <button id="sell-all-btn" class="nes-btn">Продать все</button>
+              <div class="nes-text" id="price">Цена: 2</div>
             </div>
           </div>
-          <div class="menu-section">
+          <div class="menu-section nes-container is-rounded">
             <div class="menu-title">Сохранение</div>
             <div class="menu-row">
-              <button id="save-btn">Сохранить</button>
-              <button id="load-btn">Загрузить</button>
-              <button id="reset-btn">Сброс</button>
+              <button id="save-btn" class="nes-btn">Сохранить</button>
+              <button id="load-btn" class="nes-btn">Загрузить</button>
+              <button id="reset-btn" class="nes-btn is-warning">Сброс</button>
             </div>
             <div class="menu-row">
-              <button id="export-btn">Экспорт</button>
-              <button id="import-btn">Импорт</button>
+              <button id="export-btn" class="nes-btn">Экспорт</button>
+              <button id="import-btn" class="nes-btn">Импорт</button>
             </div>
-            <textarea id="save-json" rows="3" placeholder="JSON сохранения..."></textarea>
-            <div class="save-hint">Автосейв каждые 10 секунд.</div>
+            <textarea id="save-json" rows="3" class="nes-textarea" placeholder="JSON сохранения..."></textarea>
+            <div class="save-hint nes-text">Автосейв каждые 10 секунд.</div>
           </div>
         </div>
       </div>

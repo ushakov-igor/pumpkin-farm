@@ -473,13 +473,12 @@ class FarmScene extends Phaser.Scene {
   }
 
   toggleMenu(open) {
-    const overlay = document.getElementById("menu-overlay");
     if (open) {
-      overlay.classList.add("is-open");
-      overlay.setAttribute("aria-hidden", "false");
+      document.body.classList.add("menu-open");
+      document.getElementById("menu-overlay").setAttribute("aria-hidden", "false");
     } else {
-      overlay.classList.remove("is-open");
-      overlay.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("menu-open");
+      document.getElementById("menu-overlay").setAttribute("aria-hidden", "true");
     }
   }
 }
