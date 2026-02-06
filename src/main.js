@@ -11,6 +11,17 @@ const SELL_PRICE = 2;
 const SEED_PRICE = 1;
 const SEED_BUNDLE = 5;
 const INVENTORY_SLOTS = 12;
+const MAX_ENERGY = 20;
+const ENERGY_REGEN_INTERVAL = 7000;
+const ENERGY_REGEN_AMOUNT = 1;
+const CLOCK_TICK_MS = 6000;
+const TIME_STEP_MINUTES = 10;
+const WEATHER_POOL = [
+  { icon: "☀️", label: "Солнечно" },
+  { icon: "⛅️", label: "Облачно" },
+  { icon: "🌧️", label: "Дождь" },
+  { icon: "🌙", label: "Ночь" },
+];
 const ITEM_META = {
   pumpkin: { icon: "🎃", label: "Тыква" },
   seed: { icon: "🌱", label: "Семена" },
@@ -25,13 +36,20 @@ class FarmScene extends Phaser.Scene {
     this.level = 1;
     this.xp = 0;
     this.seeds = 5;
+    this.energy = MAX_ENERGY;
+    this.day = 1;
+    this.timeOfDay = 360;
+    this.weather = WEATHER_POOL[0];
     this.inventoryOrder = Array(INVENTORY_SLOTS).fill(null);
     this.inventoryOrder[0] = "seed";
     this.inventoryOrder[1] = "pumpkin";
+    this.activeSlot = 0;
     this.activeTask = null;
     this.taskProgress = 0;
     this.otherPlayers = new Map();
     this.autoSaveTimer = null;
+    this.energyTimer = null;
+    this.clockTimer = null;
   }
 
   async create() {
@@ -44,8 +62,11 @@ class FarmScene extends Phaser.Scene {
     this.normalizeInventoryOrder();
     this.updateHud();
     this.bindInventoryDnD();
+    this.bindHotbarControls();
     this.startLocalPresence();
     this.startAutoSave();
+    this.startEnergyRegen();
+    this.startClock();
   }
 
   createTextures() {
@@ -163,8 +184,11 @@ class FarmScene extends Phaser.Scene {
       });
     }
     window.addEventListener("keydown", (event) => {
+      const tag = event.target?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea") return;
       if (event.key === "Escape") this.toggleMenu(false);
       if (event.key.toLowerCase() === "m") this.toggleMenu(true);
+      this.handleHotbarKey(event);
     });
   }
 
@@ -181,6 +205,7 @@ class FarmScene extends Phaser.Scene {
   }
 
   plantSeed(tile) {
+    if (!this.spendEnergy(1)) return;
     if (this.seeds <= 0) {
       this.setStatus("Нет семян");
       return;
@@ -210,6 +235,7 @@ class FarmScene extends Phaser.Scene {
   }
 
   harvest(tile) {
+    if (!this.spendEnergy(1)) return;
     tile.state = "empty";
     tile.plant.setAlpha(0);
     if (tile.timer) {
@@ -250,9 +276,19 @@ class FarmScene extends Phaser.Scene {
     const coinEl = document.getElementById("coins");
     const levelEl = document.getElementById("level");
     const taskEl = document.getElementById("tasks");
+    const dayEl = document.getElementById("day");
+    const timeEl = document.getElementById("time");
+    const weatherEl = document.getElementById("weather");
+    const energyFill = document.getElementById("energy-fill");
+    const energyText = document.getElementById("energy-text");
 
     if (coinEl) coinEl.textContent = `Монеты: ${this.coins}`;
     if (levelEl) levelEl.textContent = `Уровень: ${this.level} (${this.xp}/${this.nextLevelXp()})`;
+    if (dayEl) dayEl.textContent = String(this.day);
+    if (timeEl) timeEl.textContent = this.formatTime(this.timeOfDay);
+    if (weatherEl) weatherEl.textContent = this.weather.icon;
+    if (energyText) energyText.textContent = `${this.energy}/${MAX_ENERGY}`;
+    if (energyFill) energyFill.style.width = `${(this.energy / MAX_ENERGY) * 100}%`;
     if (!this.activeTask) {
       if (taskEl) taskEl.textContent = "Заданий: 0";
     } else if (taskEl) {
@@ -322,7 +358,12 @@ class FarmScene extends Phaser.Scene {
       level: this.level,
       xp: this.xp,
       seeds: this.seeds,
+      energy: this.energy,
+      day: this.day,
+      timeOfDay: this.timeOfDay,
+      weather: this.weather,
       inventoryOrder: this.inventoryOrder,
+      activeSlot: this.activeSlot,
       activeTask: this.activeTask,
       taskProgress: this.taskProgress,
       tiles: this.tiles.map((tile) => ({
@@ -346,10 +387,15 @@ class FarmScene extends Phaser.Scene {
     this.level = state.level || 1;
     this.xp = state.xp || 0;
     this.seeds = state.seeds ?? 5;
+    this.energy = Math.min(state.energy ?? MAX_ENERGY, MAX_ENERGY);
+    this.day = state.day || 1;
+    this.timeOfDay = state.timeOfDay ?? 360;
+    this.weather = state.weather?.icon ? state.weather : WEATHER_POOL[0];
     if (Array.isArray(state.inventoryOrder) && state.inventoryOrder.length === INVENTORY_SLOTS) {
       this.inventoryOrder = state.inventoryOrder;
     }
     this.normalizeInventoryOrder();
+    this.activeSlot = Number.isInteger(state.activeSlot) ? state.activeSlot : 0;
     this.activeTask = state.activeTask || null;
     this.taskProgress = state.taskProgress || 0;
 
@@ -389,9 +435,14 @@ class FarmScene extends Phaser.Scene {
     this.level = 1;
     this.xp = 0;
     this.seeds = 5;
+    this.energy = MAX_ENERGY;
+    this.day = 1;
+    this.timeOfDay = 360;
+    this.weather = WEATHER_POOL[0];
     this.inventoryOrder = Array(INVENTORY_SLOTS).fill(null);
     this.inventoryOrder[0] = "seed";
     this.inventoryOrder[1] = "pumpkin";
+    this.activeSlot = 0;
     this.activeTask = null;
     this.taskProgress = 0;
     this.tiles.forEach((tile) => {
@@ -476,13 +527,31 @@ class FarmScene extends Phaser.Scene {
     });
   }
 
+  bindHotbarControls() {
+    const slots = document.querySelectorAll(".inv-slot[data-scope='hotbar']");
+    slots.forEach((slot) => {
+      slot.addEventListener("click", () => {
+        const index = Number(slot.dataset.slot);
+        if (!Number.isNaN(index)) {
+          this.setActiveSlot(index);
+        }
+      });
+    });
+  }
+
   renderInventory() {
     const slots = document.querySelectorAll(".inv-slot[data-slot]");
     slots.forEach((slot) => {
       const index = Number(slot.dataset.slot);
       const item = this.inventoryOrder[index];
+      const scope = slot.dataset.scope;
       slot.classList.remove("is-empty");
+      slot.classList.remove("is-active");
       slot.innerHTML = "";
+
+      if (scope === "hotbar" && index === this.activeSlot) {
+        slot.classList.add("is-active");
+      }
 
       if (!item) {
         slot.classList.add("is-empty");
@@ -568,6 +637,78 @@ class FarmScene extends Phaser.Scene {
       this.level += 1;
       this.setStatus(`Новый уровень: ${this.level}`);
     }
+  }
+
+  spendEnergy(amount) {
+    if (this.energy < amount) {
+      this.setStatus("Нет сил, отдохни немного");
+      return false;
+    }
+    this.energy = Math.max(0, this.energy - amount);
+    this.updateHud();
+    return true;
+  }
+
+  startEnergyRegen() {
+    if (this.energyTimer) clearInterval(this.energyTimer);
+    this.energyTimer = setInterval(() => {
+      if (this.energy >= MAX_ENERGY) return;
+      this.energy = Math.min(MAX_ENERGY, this.energy + ENERGY_REGEN_AMOUNT);
+      this.updateHud();
+    }, ENERGY_REGEN_INTERVAL);
+  }
+
+  startClock() {
+    if (this.clockTimer) clearInterval(this.clockTimer);
+    this.clockTimer = setInterval(() => {
+      this.timeOfDay += TIME_STEP_MINUTES;
+      if (this.timeOfDay >= 1440) {
+        this.timeOfDay = 360;
+        this.day += 1;
+        this.weather = WEATHER_POOL[Math.floor(Math.random() * WEATHER_POOL.length)];
+        this.setStatus(`Новый день: ${this.day} (${this.weather.label})`);
+      }
+      this.updateHud();
+    }, CLOCK_TICK_MS);
+  }
+
+  formatTime(minutes) {
+    const safeMinutes = ((minutes % 1440) + 1440) % 1440;
+    const hours = Math.floor(safeMinutes / 60)
+      .toString()
+      .padStart(2, "0");
+    const mins = Math.floor(safeMinutes % 60)
+      .toString()
+      .padStart(2, "0");
+    return `${hours}:${mins}`;
+  }
+
+  handleHotbarKey(event) {
+    const key = event.code;
+    const mapping = {
+      Digit1: 0,
+      Digit2: 1,
+      Digit3: 2,
+      Digit4: 3,
+      Digit5: 4,
+      Digit6: 5,
+      Digit7: 6,
+      Digit8: 7,
+      Digit9: 8,
+      Digit0: 9,
+      Minus: 10,
+      Equal: 11,
+    };
+    if (Object.prototype.hasOwnProperty.call(mapping, key)) {
+      this.setActiveSlot(mapping[key]);
+    }
+  }
+
+  setActiveSlot(index) {
+    if (index < 0 || index >= INVENTORY_SLOTS) return;
+    this.activeSlot = index;
+    this.updateHud();
+    this.persistState();
   }
 
   async exportSave() {

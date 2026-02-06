@@ -11,34 +11,54 @@
     <div id="app">
       <header class="top-bar nes-container is-rounded">
         <div class="top-info">
-          <span class="nes-text" id="level">Уровень: 1</span>
-          <span class="nes-text" id="coins">Монеты: 0</span>
+          <div class="status-block">
+            <div class="status-title">День</div>
+            <div class="status-value" id="day">1</div>
+          </div>
+          <div class="status-block">
+            <div class="status-title">Время</div>
+            <div class="status-value" id="time">06:00</div>
+          </div>
+          <div class="status-block">
+            <div class="status-title">Погода</div>
+            <div class="status-value" id="weather">☀️</div>
+          </div>
+          <div class="status-block">
+            <div class="status-title">Выносливость</div>
+            <div class="energy-bar" aria-label="Выносливость">
+              <div class="energy-fill" id="energy-fill" style="width: 100%"></div>
+            </div>
+            <div class="status-value" id="energy-text">20/20</div>
+          </div>
+          <span class="nes-text status-chip" id="level">Уровень: 1</span>
+          <span class="nes-text status-chip" id="coins">Монеты: 0</span>
           <button id="menu-btn" class="nes-btn is-primary">Меню</button>
         </div>
+        <div class="status-line nes-text" id="status">Добро пожаловать на ферму!</div>
       </header>
       <main class="game-wrap">
         <section class="farm-stage">
           <div class="farm-label">Тыквенное поле</div>
           <div id="game"></div>
         </section>
-        <aside class="inventory-panel nes-container is-rounded">
-          <div class="inventory-header">Инвентарь</div>
-          <div class="inventory-grid">
-            <div class="inv-slot is-empty" data-slot="0" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="1" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="2" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="3" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="4" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="5" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="6" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="7" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="8" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="9" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="10" draggable="true"></div>
-            <div class="inv-slot is-empty" data-slot="11" draggable="true"></div>
+        <section class="hotbar nes-container is-rounded">
+          <div class="hotbar-header">Быстрые слоты</div>
+          <div class="hotbar-grid">
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="0" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="1" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="2" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="3" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="4" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="5" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="6" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="7" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="8" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="9" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="10" draggable="true"></div>
+            <div class="inv-slot is-empty" data-scope="hotbar" data-slot="11" draggable="true"></div>
           </div>
-          <div class="inventory-hint nes-text">Тяни предметы между слотами.</div>
-        </aside>
+          <div class="inventory-hint nes-text">Клик по слоту — выбрать активный.</div>
+        </section>
       </main>
       <div class="menu-overlay" id="menu-overlay" aria-hidden="true">
         <div class="menu-panel nes-container is-rounded">
@@ -50,6 +70,24 @@
             <div class="menu-title">Задания</div>
             <div id="tasks" class="nes-text">Заданий: 0</div>
             <button id="task-btn" class="nes-btn is-success">Получить задание</button>
+          </div>
+          <div class="menu-section nes-container is-rounded">
+            <div class="menu-title">Рюкзак</div>
+            <div class="inventory-grid">
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="0" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="1" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="2" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="3" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="4" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="5" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="6" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="7" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="8" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="9" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="10" draggable="true"></div>
+              <div class="inv-slot is-empty" data-scope="bag" data-slot="11" draggable="true"></div>
+            </div>
+            <div class="inventory-hint nes-text">Перетаскивай предметы между слотами.</div>
           </div>
           <div class="menu-section nes-container is-rounded">
             <div class="menu-title">Магазин</div>
