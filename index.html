@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Тыквенная ферма</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="top-bar">
+        <div class="title">
+          <span>Тыквенная ферма</span>
+        </div>
+        <div class="status" id="status">Оффлайн мир</div>
+      </header>
+      <main class="game-wrap">
+        <div id="game"></div>
+        <div class="hud">
+          <div class="stat" id="coins">Монеты: 0</div>
+          <div class="stat" id="tasks">Заданий: 0</div>
+          <button id="task-btn">Получить задание</button>
+        </div>
+        <section class="chat-panel">
+          <div class="chat-header">Фермерский чат</div>
+          <div class="chat-messages" id="chat-messages"></div>
+          <form class="chat-input" id="chat-form">
+            <input id="chat-text" type="text" maxlength="200" placeholder="Сказать соседям..." />
+            <button type="submit">Отправить</button>
+          </form>
+        </section>
+      </main>
+      <footer class="hint">
+        Тап/клик по грядке — посадить. Тыква растет ~10 сек.
+      </footer>
+    </div>
+    <script src="./config.js"></script>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

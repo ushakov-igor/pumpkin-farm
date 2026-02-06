@@ -1,0 +1,190 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
+
+:root {
+  --bg-1: #f5e9c6;
+  --bg-2: #e1c9a3;
+  --soil-1: #8a5a3c;
+  --soil-2: #6f462f;
+  --accent: #d97706;
+  --ink: #2b1f16;
+  --card: #fff7e3;
+  --shadow: rgba(43, 31, 22, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Press Start 2P", "VT323", "Pixelify Sans", "Courier New", monospace;
+  background: radial-gradient(circle at top, var(--bg-1), var(--bg-2));
+  color: var(--ink);
+  min-height: 100vh;
+  text-rendering: geometricPrecision;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--card);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+.title {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+}
+
+.status {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.game-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+}
+
+#game {
+  width: min(92vw, 860px);
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 4px solid var(--soil-2);
+  box-shadow: 0 16px 40px var(--shadow);
+  background: #5f9b4d;
+}
+
+#game canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.hud {
+  width: min(92vw, 860px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px var(--shadow);
+}
+
+.chat-panel {
+  width: min(92vw, 860px);
+  background: var(--card);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 10px 24px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-header {
+  font-size: 12px;
+  letter-spacing: 0.6px;
+}
+
+.chat-messages {
+  min-height: 120px;
+  max-height: 200px;
+  overflow: auto;
+  background: #f9edd6;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.chat-message {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.chat-name {
+  color: #7a3a14;
+}
+
+.chat-input {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-input input {
+  flex: 1;
+  border: 2px solid #d9b98a;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 11px;
+  background: #fff7e3;
+}
+
+.chat-input button {
+  white-space: nowrap;
+}
+
+.stat {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 14px rgba(217, 119, 6, 0.35);
+  letter-spacing: 0.6px;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+.hint {
+  padding: 10px 16px 18px;
+  font-size: 12px;
+  text-align: center;
+  opacity: 0.75;
+}
+
+@media (max-width: 640px) {
+  .hud {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #game {
+    width: 96vw;
+    aspect-ratio: 9 / 16;
+  }
+}

@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: pumpkin-farm-api
+    env: docker
+    image:
+      url: postgrest/postgrest:v11.2.2
+    plan: free
+    envVars:
+      - key: PGRST_DB_URI
+        sync: false
+      - key: PGRST_DB_SCHEMAS
+        value: public
+      - key: PGRST_DB_ANON_ROLE
+        value: anon
+
+  - type: web
+    name: pumpkin-farm-app
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: API_BASE
+        value: https://pumpkin-farm-api.onrender.com
+
+databases:
+  - name: pumpkin-farm-db
+    plan: free
+    postgresMajorVersion: 15

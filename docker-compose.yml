@@ -1,0 +1,41 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: pumpkin
+      POSTGRES_PASSWORD: pumpkin
+      POSTGRES_DB: pumpkin
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+
+  api:
+    image: postgrest/postgrest:v11.2.2
+    depends_on:
+      - db
+    environment:
+      PGRST_DB_URI: postgres://authenticator:postgres@db:5432/pumpkin
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_ANON_ROLE: anon
+    ports:
+      - "3000:3000"
+
+  janitor:
+    image: postgres:15-alpine
+    depends_on:
+      - db
+    volumes:
+      - ./db/janitor.sh:/janitor.sh:ro
+    entrypoint: ["/bin/sh", "/janitor.sh"]
+
+  app:
+    build: .
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+
+volumes:
+  db-data:
