@@ -10,7 +10,9 @@ services:
       - key: PGRST_DB_SCHEMAS
         value: public
       - key: PGRST_DB_ANON_ROLE
-        value: anon
+        value: pumpkin_farm_db_user
+      - key: DATABASE_URL
+        sync: false
 
   - type: web
     name: pumpkin-farm-app

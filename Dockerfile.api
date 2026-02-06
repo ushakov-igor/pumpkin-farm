@@ -1,1 +1,8 @@
 FROM postgrest/postgrest:v11.2.2
+
+RUN apk add --no-cache postgresql-client
+
+COPY db /app/db
+COPY docker-entrypoint.api.sh /docker-entrypoint.api.sh
+
+ENTRYPOINT ["/docker-entrypoint.api.sh"]
