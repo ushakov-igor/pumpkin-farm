@@ -10,7 +10,7 @@
   <body>
     <div id="app">
       <header class="top-bar nes-container is-rounded">
-        <div class="title">Тыквенная ферма</div>
+        <div class="title"></div>
         <div class="top-info">
           <span class="nes-text" id="level">Уровень: 1</span>
           <span class="nes-text" id="coins">Монеты: 0</span>
@@ -18,29 +18,26 @@
         </div>
       </header>
       <main class="game-wrap">
-        <div id="game" class="nes-container is-rounded"></div>
+        <div id="game"></div>
         <aside class="inventory-panel nes-container is-rounded">
           <div class="inventory-header">Инвентарь</div>
-          <div class="inventory-list">
-            <div class="inventory-item nes-container is-rounded">
-              <div class="item-icon">🎃</div>
-              <div class="item-info">
-                <div class="item-name">Тыквы</div>
-                <div class="item-qty" id="pumpkins">0</div>
-              </div>
+          <div class="inventory-grid">
+            <div class="inv-slot">
+              <div class="slot-icon">🎃</div>
+              <div class="slot-qty" id="pumpkins">0</div>
             </div>
-            <div class="inventory-item nes-container is-rounded">
-              <div class="item-icon">🌱</div>
-              <div class="item-info">
-                <div class="item-name">Семена</div>
-                <div class="item-qty" id="seeds">0</div>
-              </div>
+            <div class="inv-slot">
+              <div class="slot-icon">🌱</div>
+              <div class="slot-qty" id="seeds">0</div>
             </div>
+            <div class="inv-slot is-empty"></div>
+            <div class="inv-slot is-empty"></div>
+            <div class="inv-slot is-empty"></div>
+            <div class="inv-slot is-empty"></div>
           </div>
           <div class="inventory-hint nes-text">Продажа и покупки — в меню.</div>
         </aside>
       </main>
-      <div class="status-pill nes-container is-rounded" id="status">Оффлайн мир</div>
       <div class="menu-overlay" id="menu-overlay" aria-hidden="true">
         <div class="menu-panel nes-container is-rounded">
           <div class="menu-header">

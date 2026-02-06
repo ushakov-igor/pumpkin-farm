@@ -242,16 +242,18 @@ class FarmScene extends Phaser.Scene {
     const seedEl = document.getElementById("seeds");
     const taskEl = document.getElementById("tasks");
 
-    coinEl.textContent = `Монеты: ${this.coins}`;
-    pumpkinEl.textContent = `${this.pumpkins}`;
-    levelEl.textContent = `Уровень: ${this.level} (${this.xp}/${this.nextLevelXp()})`;
-    seedEl.textContent = `${this.seeds}`;
+    if (coinEl) coinEl.textContent = `Монеты: ${this.coins}`;
+    if (pumpkinEl) pumpkinEl.textContent = `${this.pumpkins}`;
+    if (levelEl) levelEl.textContent = `Уровень: ${this.level} (${this.xp}/${this.nextLevelXp()})`;
+    if (seedEl) seedEl.textContent = `${this.seeds}`;
     if (!this.activeTask) {
-      taskEl.textContent = "Заданий: 0";
+      if (taskEl) taskEl.textContent = "Заданий: 0";
       return;
     }
 
-    taskEl.textContent = `${this.activeTask.label} (${this.taskProgress}/${this.activeTask.goal})`;
+    if (taskEl) {
+      taskEl.textContent = `${this.activeTask.label} (${this.taskProgress}/${this.activeTask.goal})`;
+    }
   }
 
   updatePresence(players) {
@@ -293,7 +295,7 @@ class FarmScene extends Phaser.Scene {
 
   setStatus(text) {
     const status = document.getElementById("status");
-    status.textContent = text;
+    if (status) status.textContent = text;
   }
 
   startLocalPresence() {
@@ -389,7 +391,7 @@ class FarmScene extends Phaser.Scene {
 
   ensureStarterSeeds() {
     const allEmpty = this.tiles.every((tile) => tile.state === "empty");
-    if (this.seeds <= 0 && this.coins === 0 && this.pumpkins === 0 && allEmpty) {
+    if (this.seeds <= 0 && allEmpty) {
       this.seeds = 5;
       this.setStatus("Выданы стартовые семена");
       this.persistState();
