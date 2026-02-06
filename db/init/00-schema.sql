@@ -25,6 +25,8 @@ create table if not exists public.tasks (
   created_at timestamptz not null default now()
 );
 
+create unique index if not exists tasks_unique on public.tasks (label, task_type);
+
 create table if not exists public.task_progress (
   id uuid primary key default gen_random_uuid(),
   player_id uuid references public.players (id) on delete cascade,

@@ -2,9 +2,8 @@ services:
   - type: web
     name: pumpkin-farm-api
     env: docker
-    image:
-      url: postgrest/postgrest:v11.2.2
     plan: free
+    dockerfilePath: ./Dockerfile.api
     envVars:
       - key: PGRST_DB_URI
         sync: false
@@ -20,7 +19,9 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: API_BASE
-        value: https://pumpkin-farm-api.onrender.com
+        sync: false
+      - key: DATABASE_URL
+        sync: false
 
 databases:
   - name: pumpkin-farm-db

@@ -12,7 +12,9 @@ services:
       - "5432:5432"
 
   api:
-    image: postgrest/postgrest:v11.2.2
+    build:
+      context: .
+      dockerfile: Dockerfile.api
     depends_on:
       - db
     environment:
@@ -22,18 +24,12 @@ services:
     ports:
       - "3000:3000"
 
-  janitor:
-    image: postgres:15-alpine
-    depends_on:
-      - db
-    volumes:
-      - ./db/janitor.sh:/janitor.sh:ro
-    entrypoint: ["/bin/sh", "/janitor.sh"]
-
   app:
     build: .
     depends_on:
       - api
+    environment:
+      API_BASE: /api
     ports:
       - "8080:80"
 

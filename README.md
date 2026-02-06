@@ -25,7 +25,12 @@ Open:
 
 ## Config
 - App uses `/api` which is proxied to PostgREST by Nginx (`nginx/default.conf`).
-- For deployment, set `window.__PUMPKIN_API_BASE__` in `config.js` if you want a different API URL.
+- API base is injected via `API_BASE` env var at container start (see `docker-entrypoint.sh`).
+
+If you run without Docker, create `config.js` from template:
+```bash
+cp config.template.js config.js
+```
 
 ## Render (Blueprint)
 `render.yaml` is included for a Render Blueprint deployment (free tier).\n\nManual steps after import:\n- Set `PGRST_DB_URI` to the Render Postgres connection string (format: `postgres://authenticator:postgres@HOST:5432/pumpkin`).\n- Ensure Postgres has init scripts applied (use `db/init/*.sql` on first run in your DB).\n\nNote: free services sleep when idle.
