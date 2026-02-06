@@ -9,3 +9,5 @@
 - Fixed Phaser import (`import * as Phaser`) to resolve module runtime crash.
 - Added visible farm cell grid and adjusted UI to light retro Diablo-like inventory slots.
 - Kept menu as overlay and removed persistent offline status text from layout.
+- Implemented Stardew-like draggable inventory grid (12 slots, drag-and-drop reorder, persisted in save).
+- Replaced abstract moving names with role-based NPC names (e.g., "Сосед Иван", "Торговец Павел").

@@ -113,26 +113,45 @@ body {
 
 .inventory-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
 }
 
 .inv-slot {
-  height: 72px;
+  height: 74px;
   border: 2px solid var(--frame);
   background: linear-gradient(180deg, #fff4da, #ecd4ac);
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  user-select: none;
 }
 
 .inv-slot.is-empty {
   opacity: 0.6;
 }
 
+.inv-slot.is-over {
+  outline: 2px dashed #d38f3e;
+  outline-offset: -4px;
+}
+
+.inv-slot.is-dragging {
+  opacity: 0.5;
+}
+
 .slot-icon {
   font-size: 20px;
+  transform: translateY(-8px);
+}
+
+.slot-label {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  font-size: 7px;
+  color: #6b5134;
 }
 
 .slot-qty {

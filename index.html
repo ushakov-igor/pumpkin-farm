@@ -10,7 +10,6 @@
   <body>
     <div id="app">
       <header class="top-bar nes-container is-rounded">
-        <div class="title"></div>
         <div class="top-info">
           <span class="nes-text" id="level">Уровень: 1</span>
           <span class="nes-text" id="coins">Монеты: 0</span>
@@ -22,20 +21,20 @@
         <aside class="inventory-panel nes-container is-rounded">
           <div class="inventory-header">Инвентарь</div>
           <div class="inventory-grid">
-            <div class="inv-slot">
-              <div class="slot-icon">🎃</div>
-              <div class="slot-qty" id="pumpkins">0</div>
-            </div>
-            <div class="inv-slot">
-              <div class="slot-icon">🌱</div>
-              <div class="slot-qty" id="seeds">0</div>
-            </div>
-            <div class="inv-slot is-empty"></div>
-            <div class="inv-slot is-empty"></div>
-            <div class="inv-slot is-empty"></div>
-            <div class="inv-slot is-empty"></div>
+            <div class="inv-slot is-empty" data-slot="0" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="1" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="2" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="3" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="4" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="5" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="6" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="7" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="8" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="9" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="10" draggable="true"></div>
+            <div class="inv-slot is-empty" data-slot="11" draggable="true"></div>
           </div>
-          <div class="inventory-hint nes-text">Продажа и покупки — в меню.</div>
+          <div class="inventory-hint nes-text">Тяни предметы между слотами.</div>
         </aside>
       </main>
       <div class="menu-overlay" id="menu-overlay" aria-hidden="true">

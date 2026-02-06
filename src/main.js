@@ -10,6 +10,11 @@ const GROW_TIME = 10000;
 const SELL_PRICE = 2;
 const SEED_PRICE = 1;
 const SEED_BUNDLE = 5;
+const INVENTORY_SLOTS = 12;
+const ITEM_META = {
+  pumpkin: { icon: "🎃", label: "Тыква" },
+  seed: { icon: "🌱", label: "Семена" },
+};
 
 class FarmScene extends Phaser.Scene {
   constructor() {
@@ -20,6 +25,9 @@ class FarmScene extends Phaser.Scene {
     this.level = 1;
     this.xp = 0;
     this.seeds = 5;
+    this.inventoryOrder = Array(INVENTORY_SLOTS).fill(null);
+    this.inventoryOrder[0] = "seed";
+    this.inventoryOrder[1] = "pumpkin";
     this.activeTask = null;
     this.taskProgress = 0;
     this.otherPlayers = new Map();
@@ -34,6 +42,7 @@ class FarmScene extends Phaser.Scene {
     await this.restoreState();
     this.ensureStarterSeeds();
     this.updateHud();
+    this.bindInventoryDnD();
     this.startLocalPresence();
     this.startAutoSave();
   }
@@ -238,23 +247,18 @@ class FarmScene extends Phaser.Scene {
 
   updateHud() {
     const coinEl = document.getElementById("coins");
-    const pumpkinEl = document.getElementById("pumpkins");
     const levelEl = document.getElementById("level");
-    const seedEl = document.getElementById("seeds");
     const taskEl = document.getElementById("tasks");
 
     if (coinEl) coinEl.textContent = `Монеты: ${this.coins}`;
-    if (pumpkinEl) pumpkinEl.textContent = `${this.pumpkins}`;
     if (levelEl) levelEl.textContent = `Уровень: ${this.level} (${this.xp}/${this.nextLevelXp()})`;
-    if (seedEl) seedEl.textContent = `${this.seeds}`;
     if (!this.activeTask) {
       if (taskEl) taskEl.textContent = "Заданий: 0";
-      return;
-    }
-
-    if (taskEl) {
+    } else if (taskEl) {
       taskEl.textContent = `${this.activeTask.label} (${this.taskProgress}/${this.activeTask.goal})`;
     }
+
+    this.renderInventory();
   }
 
   updatePresence(players) {
@@ -316,6 +320,7 @@ class FarmScene extends Phaser.Scene {
       level: this.level,
       xp: this.xp,
       seeds: this.seeds,
+      inventoryOrder: this.inventoryOrder,
       activeTask: this.activeTask,
       taskProgress: this.taskProgress,
       tiles: this.tiles.map((tile) => ({
@@ -339,6 +344,9 @@ class FarmScene extends Phaser.Scene {
     this.level = state.level || 1;
     this.xp = state.xp || 0;
     this.seeds = state.seeds ?? 5;
+    if (Array.isArray(state.inventoryOrder) && state.inventoryOrder.length === INVENTORY_SLOTS) {
+      this.inventoryOrder = state.inventoryOrder;
+    }
     this.activeTask = state.activeTask || null;
     this.taskProgress = state.taskProgress || 0;
 
@@ -397,6 +405,82 @@ class FarmScene extends Phaser.Scene {
       this.setStatus("Выданы стартовые семена");
       this.persistState();
     }
+  }
+
+  bindInventoryDnD() {
+    const slots = document.querySelectorAll(".inv-slot[data-slot]");
+    slots.forEach((slot) => {
+      slot.addEventListener("dragstart", (event) => {
+        const from = slot.dataset.slot;
+        if (!from) return;
+        const item = this.inventoryOrder[Number(from)];
+        if (!item) {
+          event.preventDefault();
+          return;
+        }
+        event.dataTransfer.setData("text/plain", from);
+        event.dataTransfer.effectAllowed = "move";
+        slot.classList.add("is-dragging");
+      });
+
+      slot.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        slot.classList.add("is-over");
+      });
+
+      slot.addEventListener("dragleave", () => {
+        slot.classList.remove("is-over");
+      });
+
+      slot.addEventListener("drop", (event) => {
+        event.preventDefault();
+        slot.classList.remove("is-over");
+        const from = Number(event.dataTransfer.getData("text/plain"));
+        const to = Number(slot.dataset.slot);
+        if (Number.isNaN(from) || Number.isNaN(to) || from === to) return;
+        const temp = this.inventoryOrder[to];
+        this.inventoryOrder[to] = this.inventoryOrder[from];
+        this.inventoryOrder[from] = temp;
+        this.updateHud();
+        this.persistState();
+      });
+
+      slot.addEventListener("dragend", () => {
+        slot.classList.remove("is-over");
+        slot.classList.remove("is-dragging");
+      });
+    });
+  }
+
+  renderInventory() {
+    const slots = document.querySelectorAll(".inv-slot[data-slot]");
+    slots.forEach((slot) => {
+      const index = Number(slot.dataset.slot);
+      const item = this.inventoryOrder[index];
+      slot.classList.remove("is-empty");
+      slot.innerHTML = "";
+
+      if (!item) {
+        slot.classList.add("is-empty");
+        return;
+      }
+
+      const icon = document.createElement("div");
+      icon.className = "slot-icon";
+      icon.textContent = ITEM_META[item].icon;
+
+      const label = document.createElement("div");
+      label.className = "slot-label";
+      label.textContent = ITEM_META[item].label;
+
+      const qty = document.createElement("div");
+      qty.className = "slot-qty";
+      qty.textContent = item === "seed" ? String(this.seeds) : String(this.pumpkins);
+
+      slot.appendChild(icon);
+      slot.appendChild(label);
+      slot.appendChild(qty);
+    });
   }
 
   scheduleGrowth(tile, elapsed) {
