@@ -12,3 +12,4 @@
 - Render: created Postgres `pumpkin-farm-db` (id dpg-d62rt08gjchc73bvmcl0-a) in region oregon.
 - Render API service creation failed due to GitHub repo access; requires Render GitHub App access to private repo.
 - Added API container entrypoint to run migrations using DATABASE_URL before starting PostgREST.
+- Render API returned "Payment information is required" when creating services.
