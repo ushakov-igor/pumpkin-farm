@@ -12,40 +12,72 @@
         <div class="title">
           <span>Тыквенная ферма</span>
         </div>
-        <div class="status" id="status">Оффлайн мир</div>
+        <div class="top-info">
+          <div class="stat" id="level">Уровень: 1</div>
+          <div class="stat" id="coins">Монеты: 0</div>
+          <button id="menu-btn" class="menu-btn">Меню</button>
+        </div>
       </header>
       <main class="game-wrap">
         <div id="game"></div>
-        <div class="hud">
-          <div class="stat" id="coins">Монеты: 0</div>
-          <div class="stat" id="pumpkins">Тыквы: 0</div>
-          <div class="stat" id="level">Уровень: 1</div>
-          <div class="stat" id="tasks">Заданий: 0</div>
-          <button id="task-btn">Получить задание</button>
-        </div>
-        <section class="save-panel">
-          <div class="save-header">Ферма</div>
-          <div class="save-row">
-            <button id="sell-one-btn">Продать 1</button>
-            <button id="sell-all-btn">Продать все</button>
-            <div class="stat" id="price">Цена: 2</div>
+        <aside class="inventory-panel">
+          <div class="inventory-header">Инвентарь</div>
+          <div class="inventory-list">
+            <div class="inventory-item">
+              <span>Тыквы</span>
+              <span id="pumpkins">0</span>
+            </div>
+            <div class="inventory-item">
+              <span>Семена</span>
+              <span id="seeds">0</span>
+            </div>
           </div>
-          <div class="save-row">
-            <button id="save-btn">Сохранить</button>
-            <button id="load-btn">Загрузить</button>
-            <button id="reset-btn">Сброс</button>
-          </div>
-          <div class="save-row">
-            <button id="export-btn">Экспорт</button>
-            <button id="import-btn">Импорт</button>
-          </div>
-          <textarea id="save-json" rows="2" placeholder="JSON сохранения..."></textarea>
-          <div class="save-hint">Автосейв каждые 10 секунд. Экспорт = копия в буфер.</div>
-        </section>
+          <div class="inventory-hint">Собирай урожай и продавай через меню.</div>
+        </aside>
       </main>
-      <footer class="hint">
-        Тап/клик по грядке — посадить. Тыква растет ~10 сек, потом продается.
-      </footer>
+      <div class="status-bar" id="status">Оффлайн мир</div>
+      <div class="menu-overlay" id="menu-overlay" aria-hidden="true">
+        <div class="menu-panel">
+          <div class="menu-header">
+            <div>Меню</div>
+            <button id="menu-close" class="menu-btn">Закрыть</button>
+          </div>
+          <div class="menu-section">
+            <div class="menu-title">Задания</div>
+            <div id="tasks">Заданий: 0</div>
+            <button id="task-btn">Получить задание</button>
+          </div>
+          <div class="menu-section">
+            <div class="menu-title">Магазин</div>
+            <div class="menu-row">
+              <button id="buy-seed-btn">Купить семена (5)</button>
+              <div class="stat">Цена: 1</div>
+            </div>
+          </div>
+          <div class="menu-section">
+            <div class="menu-title">Продажа</div>
+            <div class="menu-row">
+              <button id="sell-one-btn">Продать 1</button>
+              <button id="sell-all-btn">Продать все</button>
+              <div class="stat" id="price">Цена: 2</div>
+            </div>
+          </div>
+          <div class="menu-section">
+            <div class="menu-title">Сохранение</div>
+            <div class="menu-row">
+              <button id="save-btn">Сохранить</button>
+              <button id="load-btn">Загрузить</button>
+              <button id="reset-btn">Сброс</button>
+            </div>
+            <div class="menu-row">
+              <button id="export-btn">Экспорт</button>
+              <button id="import-btn">Импорт</button>
+            </div>
+            <textarea id="save-json" rows="3" placeholder="JSON сохранения..."></textarea>
+            <div class="save-hint">Автосейв каждые 10 секунд.</div>
+          </div>
+        </div>
+      </div>
     </div>
     <script src="./config.js"></script>
     <script type="module" src="./src/main.js"></script>

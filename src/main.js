@@ -8,6 +8,8 @@ const GRID_ROWS = 5;
 const TILE_SIZE = 96;
 const GROW_TIME = 10000;
 const SELL_PRICE = 2;
+const SEED_PRICE = 1;
+const SEED_BUNDLE = 5;
 
 class FarmScene extends Phaser.Scene {
   constructor() {
@@ -17,6 +19,7 @@ class FarmScene extends Phaser.Scene {
     this.pumpkins = 0;
     this.level = 1;
     this.xp = 0;
+    this.seeds = 5;
     this.activeTask = null;
     this.taskProgress = 0;
     this.otherPlayers = new Map();
@@ -132,6 +135,19 @@ class FarmScene extends Phaser.Scene {
     document.getElementById("sell-all-btn").addEventListener("click", () => this.sellPumpkins(this.pumpkins));
     document.getElementById("export-btn").addEventListener("click", () => this.exportSave());
     document.getElementById("import-btn").addEventListener("click", () => this.importSave());
+    document.getElementById("buy-seed-btn").addEventListener("click", () => this.buySeeds());
+
+    const menuBtn = document.getElementById("menu-btn");
+    const menuClose = document.getElementById("menu-close");
+    const overlay = document.getElementById("menu-overlay");
+    menuBtn.addEventListener("click", () => this.toggleMenu(true));
+    menuClose.addEventListener("click", () => this.toggleMenu(false));
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) this.toggleMenu(false);
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") this.toggleMenu(false);
+    });
   }
 
   findTileAt(x, y) {
@@ -147,6 +163,11 @@ class FarmScene extends Phaser.Scene {
   }
 
   plantSeed(tile) {
+    if (this.seeds <= 0) {
+      this.setStatus("Нет семян");
+      return;
+    }
+    this.seeds -= 1;
     tile.state = "growing";
     tile.plant.setTexture("sprout").setAlpha(1);
     tile.plantedAt = Date.now();
@@ -167,6 +188,7 @@ class FarmScene extends Phaser.Scene {
     });
 
     this.persistState();
+    this.updateHud();
   }
 
   harvest(tile) {
@@ -210,11 +232,13 @@ class FarmScene extends Phaser.Scene {
     const coinEl = document.getElementById("coins");
     const pumpkinEl = document.getElementById("pumpkins");
     const levelEl = document.getElementById("level");
+    const seedEl = document.getElementById("seeds");
     const taskEl = document.getElementById("tasks");
 
     coinEl.textContent = `Монеты: ${this.coins}`;
-    pumpkinEl.textContent = `Тыквы: ${this.pumpkins}`;
+    pumpkinEl.textContent = `${this.pumpkins}`;
     levelEl.textContent = `Уровень: ${this.level} (${this.xp}/${this.nextLevelXp()})`;
+    seedEl.textContent = `${this.seeds}`;
     if (!this.activeTask) {
       taskEl.textContent = "Заданий: 0";
       return;
@@ -281,6 +305,7 @@ class FarmScene extends Phaser.Scene {
       pumpkins: this.pumpkins,
       level: this.level,
       xp: this.xp,
+      seeds: this.seeds,
       activeTask: this.activeTask,
       taskProgress: this.taskProgress,
       tiles: this.tiles.map((tile) => ({
@@ -303,6 +328,7 @@ class FarmScene extends Phaser.Scene {
     this.pumpkins = state.pumpkins || 0;
     this.level = state.level || 1;
     this.xp = state.xp || 0;
+    this.seeds = state.seeds ?? 5;
     this.activeTask = state.activeTask || null;
     this.taskProgress = state.taskProgress || 0;
 
@@ -341,6 +367,7 @@ class FarmScene extends Phaser.Scene {
     this.pumpkins = 0;
     this.level = 1;
     this.xp = 0;
+    this.seeds = 5;
     this.activeTask = null;
     this.taskProgress = 0;
     this.tiles.forEach((tile) => {
@@ -391,6 +418,18 @@ class FarmScene extends Phaser.Scene {
     this.persistState();
   }
 
+  buySeeds() {
+    if (this.coins < SEED_PRICE) {
+      this.setStatus("Не хватает монет");
+      return;
+    }
+    this.coins -= SEED_PRICE;
+    this.seeds += SEED_BUNDLE;
+    this.updateHud();
+    this.setStatus(`Куплено семян: +${SEED_BUNDLE}`);
+    this.persistState();
+  }
+
   nextLevelXp() {
     return 20 + (this.level - 1) * 10;
   }
@@ -430,6 +469,17 @@ class FarmScene extends Phaser.Scene {
       this.setStatus("Сохранение импортировано");
     } catch (err) {
       this.setStatus("Ошибка JSON");
+    }
+  }
+
+  toggleMenu(open) {
+    const overlay = document.getElementById("menu-overlay");
+    if (open) {
+      overlay.classList.add("is-open");
+      overlay.setAttribute("aria-hidden", "false");
+    } else {
+      overlay.classList.remove("is-open");
+      overlay.setAttribute("aria-hidden", "true");
     }
   }
 }
