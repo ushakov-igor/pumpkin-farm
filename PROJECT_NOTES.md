@@ -9,3 +9,5 @@
 - Added runtime config injection via `API_BASE` and DB migrations via `DATABASE_URL` on app container start.
 - Added idempotent DB seeds and unique constraint for tasks.
 - Added Dockerfile for PostgREST service and migration script.
+- Render: created Postgres `pumpkin-farm-db` (id dpg-d62rt08gjchc73bvmcl0-a) in region oregon.
+- Render API service creation failed due to GitHub repo access; requires Render GitHub App access to private repo.
