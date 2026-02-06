@@ -41,6 +41,7 @@ class FarmScene extends Phaser.Scene {
     this.bindInput();
     await this.restoreState();
     this.ensureStarterSeeds();
+    this.normalizeInventoryOrder();
     this.updateHud();
     this.bindInventoryDnD();
     this.startLocalPresence();
@@ -258,6 +259,7 @@ class FarmScene extends Phaser.Scene {
       taskEl.textContent = `${this.activeTask.label} (${this.taskProgress}/${this.activeTask.goal})`;
     }
 
+    this.normalizeInventoryOrder();
     this.renderInventory();
   }
 
@@ -347,6 +349,7 @@ class FarmScene extends Phaser.Scene {
     if (Array.isArray(state.inventoryOrder) && state.inventoryOrder.length === INVENTORY_SLOTS) {
       this.inventoryOrder = state.inventoryOrder;
     }
+    this.normalizeInventoryOrder();
     this.activeTask = state.activeTask || null;
     this.taskProgress = state.taskProgress || 0;
 
@@ -386,6 +389,9 @@ class FarmScene extends Phaser.Scene {
     this.level = 1;
     this.xp = 0;
     this.seeds = 5;
+    this.inventoryOrder = Array(INVENTORY_SLOTS).fill(null);
+    this.inventoryOrder[0] = "seed";
+    this.inventoryOrder[1] = "pumpkin";
     this.activeTask = null;
     this.taskProgress = 0;
     this.tiles.forEach((tile) => {
@@ -405,6 +411,24 @@ class FarmScene extends Phaser.Scene {
       this.setStatus("Выданы стартовые семена");
       this.persistState();
     }
+  }
+
+  normalizeInventoryOrder() {
+    if (!Array.isArray(this.inventoryOrder) || this.inventoryOrder.length !== INVENTORY_SLOTS) {
+      this.inventoryOrder = Array(INVENTORY_SLOTS).fill(null);
+    }
+    this.ensureItemInInventory("seed");
+    this.ensureItemInInventory("pumpkin");
+  }
+
+  ensureItemInInventory(type) {
+    if (this.inventoryOrder.includes(type)) return;
+    const empty = this.inventoryOrder.indexOf(null);
+    if (empty >= 0) {
+      this.inventoryOrder[empty] = type;
+      return;
+    }
+    this.inventoryOrder[0] = type;
   }
 
   bindInventoryDnD() {

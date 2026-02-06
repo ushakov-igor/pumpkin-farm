@@ -18,6 +18,11 @@ Open `http://localhost:5173`.
 - Tasks and leveling
 - Autosave + JSON export/import
 - Offline growth continues while the tab is closed
+- 12-slot draggable inventory (Stardew-inspired)
+- Single-screen HUD with menu-driven secondary actions
 
 ## Notes
 All progress is stored locally in the browser (IndexedDB).
+
+## Alpha docs
+- Release/process notes: `docs/ALPHA_RELEASE.md`

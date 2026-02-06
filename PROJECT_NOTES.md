@@ -11,3 +11,6 @@
 - Kept menu as overlay and removed persistent offline status text from layout.
 - Implemented Stardew-like draggable inventory grid (12 slots, drag-and-drop reorder, persisted in save).
 - Replaced abstract moving names with role-based NPC names (e.g., "Сосед Иван", "Торговец Павел").
+- Stabilized inventory visibility by normalizing slot mapping for legacy saves.
+- Refined UI to a lighter retro farm style and introduced a dedicated farm stage panel.
+- Added alpha process/release documentation in `docs/ALPHA_RELEASE.md`.
